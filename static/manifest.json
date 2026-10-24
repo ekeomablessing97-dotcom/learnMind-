@@ -1,0 +1,9 @@
+{
+  "name": "LearnMind",
+  "short_name": "LearnMind",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#183653",
+  "theme_color": "#183653",
+  "icons": []
+}
