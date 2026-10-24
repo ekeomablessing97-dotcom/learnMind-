@@ -1,81 +1,141 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnMind - Master Your Studies</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-dark: #4338ca;
-            --accent: #06b6d4;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#183653"><title>LearnMind — Learn in your own way</title><link rel="manifest" href="/static/manifest.json"><link rel="stylesheet" href="/static/style.css"></head><body>
+<header class="top">
+    <a class="brand" href="/" style="display:flex; align-items:center; gap:8px;">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="LearnMind Logo" style="width:32px; height:32px; object-fit:contain;">
+        <b>LearnMind</b>
+    </a>
+    <nav>
+        <a href="#subjects">Subjects</a>
+        <a href="#lessons">Lessons</a>
+        <a href="#tools">Learning tools</a>
+        <a href="#progress">Progress</a>
+    </nav>
+    <div id="authNav" style="display:flex; gap:10px; align-items:center;">
+        {% if user %}
+            <span style="font-size:12px; font-weight:700; color:var(--navy);">Hi, {{ user.name }} {% if user.is_pro %}(Pro){% endif %}</span>
+            <button id="logoutBtn" class="btn outline" style="padding:6px 12px; font-size:11px;">Log out</button>
+        {% else %}
+            <button onclick="openLoginModal()" class="btn outline" style="padding:6px 12px; font-size:11px;">Log in</button>
+            <button onclick="openSignupModal()" class="btn" style="padding:6px 12px; font-size:11px;">Sign up</button>
+        {% endif %}
+    </div>
+</header>
+<main><section class="hero"><div><small class="eyebrow">YOUR LEARNING SPACE</small><h1>Learn in a way<br>that <em>makes sense.</em></h1><p>Explore subjects, break difficult ideas into smaller steps, and build confidence one topic at a time.</p><a class="btn" href="#subjects">Explore subjects →</a><div class="stats"><div><b>{{ subject_count }}+</b><small>subject areas</small></div><div><b>{{ lesson_count }}</b><small>starter lessons</small></div><div><b>Any pace</b><small>learn your way</small></div></div></div><div class="hero-art"><div class="orb"></div><div class="idea"><span>✺</span><small>YOUR IDEAS</small><b>Can grow here.</b></div><div class="float one">✦ Understand<br><small>One step at a time</small></div><div class="float two">✓ Progress saved<br><small>Keep moving forward</small></div></div></section>
+<section class="section" id="subjects"><div class="heading"><div><small class="eyebrow">FIND YOUR NEXT TOPIC</small><h2>What do you want to learn?</h2><p>Science, business, arts, languages and more — there's room for every learner.</p></div><span id="subjectCount">{{ subject_count }} subjects</span></div>
+<div class="filters"><input id="subjectSearch" type="search" placeholder="Search Physics, Government, Accounting…"><select id="category"><option>All subjects</option>{% for c in categories if c != "All subjects" %}<option>{{ c }}</option>{% endfor %}</select><select id="level"><option>All levels</option><option>Primary</option><option>Junior Secondary</option><option>Senior Secondary</option><option>Adult</option></select></div><div class="chips" id="chips"></div><div class="subject-grid" id="subjectGrid">Loading subjects…</div><p id="subjectEmpty" class="empty hidden">No subjects found. Try another search or reset the filters.</p></section>
+<section class="section pale" id="lessons"><div class="heading"><div><small class="eyebrow">START SMALL, BUILD CONFIDENCE</small><h2>Explore starter lessons</h2><p>Choose a lesson for an explanation, example, steps and a practice question.</p></div><select id="lessonSubject"><option>All subjects</option></select></div><input class="lesson-search" id="lessonSearch" type="search" placeholder="Search lesson or topic…"><div class="lesson-grid" id="lessonGrid">Loading lessons…</div><p id="lessonEmpty" class="empty hidden">There is no starter lesson for this subject yet. More lesson content can be added in future updates.</p></section>
+<section class="section" id="tools"><div class="heading"><div><small class="eyebrow">TOOLS FOR REAL LEARNING</small><h2>More than just reading</h2><p>Practise understanding, memory and planning.</p></div></div><div class="tools"><article><small>LEARNING DETECTIVE</small><h3>What feels confusing?</h3><p>Ask about a topic. The prototype tutor uses available lesson explanations.</p><form id="tutorForm"><input id="tutorQuestion" placeholder="What part is confusing?" required><button class="btn">Ask tutor →</button></form><div id="tutorReply" class="reply hidden"></div></article><article><small>MEMORY COACH</small><h3>Remember what you learn.</h3><p>Save a question or short note to revise later.</p><form id="recallForm"><textarea id="recallNote" placeholder="Example: What is a molecule?" required></textarea><button class="btn dark">Save revision note</button></form><div id="recallMessage" class="reply"></div></article><article><small>STUDY PLANNER</small><h3>Make a plan that fits.</h3><p>Choose a subject, time and goal for a suggested session.</p><form id="planForm"><input id="planSubject" placeholder="Subject (e.g. Further Mathematics)" required><div class="row"><select id="planMinutes"><option>20</option><option selected>30</option><option>45</option><option>60</option><option>90</option><option>120</option><option>180 (3 Hours)</option></select><input id="planGoal" placeholder="Your goal (optional)"></div><button class="btn dark">Build my plan</button></form><div id="planResult" class="reply hidden"></div></article></div></section>
+<section class="section pale progress"><div><small class="eyebrow">YOUR LEARNING JOURNEY</small><h2>Progress, not perfection.</h2><p>Your quiz activity and revision notes are saved locally for this prototype.</p><button id="refreshProgress" class="btn outline">Refresh progress</button></div><div class="metrics"><div><small>Lessons practised</small><b id="completed">0</b></div><div><small>Revision notes</small><b id="notes">0</b></div><div class="wide"><small>Quiz accuracy <b id="accuracy">—</b></small><div class="bar"><span id="bar"></span></div><small id="quizCount">Complete a quiz to begin tracking.</small></div></div></section><section class="banner"><div><small>YOUR FUTURE IS BUILT ONE IDEA AT A TIME</small><h2>Stay curious. Keep asking why.</h2><p>LearnMind is a growing platform. More subjects, lessons and features can be added over time.</p></div><a class="btn light" href="#subjects">Find a subject ↑</a></section></main><footer><b>✦ LearnMind</b><span>Learn with understanding. Grow with practice.</span><small>Prototype v1.3 · LearnMind Platform.</small></footer>
+<div id="modal" class="modal hidden"><div class="backdrop" data-close></div><article class="panel"><button class="close" data-close>×</button><div id="modalContent"></div></article></div><div id="toast" class="toast"></div>
+
+<script>
+function googleSignIn() {
+    const email = prompt("Enter your Gmail address for Google Sign-In simulation:");
+    if (!email) return;
+    const name = prompt("Enter your Full Name:", "Google User") || "Google User";
+    fetch("/api/google-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            alert("Signed in successfully with Google!");
+            window.location.reload();
+        } else {
+            alert(res.error || "Google login failed.");
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 4rem; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 100; }
-        .logo-container { display: flex; align-items: center; gap: 0.75rem; }
-        .logo-container img { width: 40px; height: 40px; object-fit: contain; }
-        .logo-container h1 { font-size: 1.5rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero { text-align: center; padding: 4rem 1rem 2rem; max-width: 800px; margin: 0 auto; }
-        .hero h2 { font-size: 2.5rem; margin-bottom: 1rem; }
-        .hero p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
-        .btn { display: inline-block; background: var(--primary); color: white; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; font-weight: bold; transition: background 0.3s; }
-        .btn:hover { background: var(--primary-dark); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-        .section-title { font-size: 1.8rem; margin: 2rem 0 1rem; border-left: 4px solid var(--accent); padding-left: 0.75rem; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s, border-color 0.3s; }
-        .card:hover { transform: translateY(-5px); border-color: var(--accent); }
-        .card h3 { margin-bottom: 0.5rem; color: var(--text); }
-        .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
-        footer { text-align: center; padding: 3rem 0; color: var(--text-muted); font-size: 0.9rem; margin-top: 4rem; border-top: 1px solid rgba(255,255,255,0.05); }
-    </style>
-</head>
-<body>
-    <header>
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="LearnMind Logo">
-            <h1>LearnMind</h1>
-        </div>
-        <nav>
-            <a href="#courses" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Get Started</a>
-        </nav>
-    </header>
+    });
+}
 
-    <div class="hero">
-        <h2>Unlock Your Potential with Guided Mastery</h2>
-        <p>Accelerate your learning with our structured 3-hour study planners, deep curriculum paths, and seamless checkout options.</p>
-        <a href="/lesson/1" class="btn"><i class="fas fa-play-circle"></i> Start Lesson 1</a>
-    </div>
+function openSignupModal() {
+    const content = `
+        <h2>Create your account</h2>
+        <p>Sign up to track your learning progress and unlock LearnMind Pro features.</p>
+        <button onclick="googleSignIn()" class="btn outline" style="width:100%; margin-top:15px; justify-content:center; border-color:#4285F4; color:#4285F4;">
+            <i class="fab fa-google"></i> Continue with Google Account
+        </button>
+        <div style="text-align:center; margin:15px 0; color:#888; font-size:11px;">or register with email</div>
+        <form id="signupForm" style="display:grid; gap:12px;">
+            <input type="text" id="suName" placeholder="Full Name" required style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <input type="email" id="suEmail" placeholder="Email Address" required style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <input type="password" id="suPassword" placeholder="Password" required style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <button type="submit" class="btn" style="justify-content:center;">Sign up</button>
+        </form>
+    `;
+    document.getElementById("modalContent").innerHTML = content;
+    document.getElementById("modal").classList.remove("hidden");
 
-    <div class="container" id="courses">
-        <h3 class="section-title">Explore Curriculum & Modules</h3>
-        <div class="grid">
-            <div class="card">
-                <h3><i class="fas fa-brain" style="color: var(--accent);"></i> Accelerated Learning</h3>
-                <p>Learn core memory retention techniques and deep focus frameworks designed to boost cognitive performance.</p>
-                <a href="/lesson/1" class="btn" style="width: 100%; text-align: center; padding: 0.5rem;">Access Module</a>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-clock" style="color: var(--accent);"></i> 3-Hour Study Planner</h3>
-                <p>Maximize retention with precision-timed intervals optimized for high-intensity knowledge acquisition.</p>
-                <a href="/lesson/2" class="btn" style="width: 100%; text-align: center; padding: 0.5rem;">Access Module</a>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-wallet" style="color: var(--accent);"></i> Premium Subscription</h3>
-                <p>Unlock lifetime access via secure Opay and Paystack gateway integrations.</p>
-                <a href="/checkout" class="btn" style="width: 100%; text-align: center; padding: 0.5rem; background: var(--accent); color: var(--bg);">Upgrade Now</a>
-            </div>
-        </div>
-    </div>
+    document.getElementById("signupForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("suName").value;
+        const email = document.getElementById("suEmail").value;
+        const password = document.getElementById("suPassword").value;
 
-    <footer>
-        <p>&copy; 2026 LearnMind Platform. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+        fetch("/api/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                alert("Account created successfully!");
+                window.location.reload();
+            } else {
+                alert(res.error || "Signup failed.");
+            }
+        });
+    });
+}
+
+function openLoginModal() {
+    const content = `
+        <h2>Welcome back</h2>
+        <p>Log in to access your LearnMind account.</p>
+        <button onclick="googleSignIn()" class="btn outline" style="width:100%; margin-top:15px; justify-content:center; border-color:#4285F4; color:#4285F4;">
+            Continue with Google Account
+        </button>
+        <div style="text-align:center; margin:15px 0; color:#888; font-size:11px;">or log in with email</div>
+        <form id="loginForm" style="display:grid; gap:12px;">
+            <input type="email" id="loEmail" placeholder="Email Address" required style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <input type="password" id="loPassword" placeholder="Password" required style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <button type="submit" class="btn" style="justify-content:center;">Log in</button>
+        </form>
+    `;
+    document.getElementById("modalContent").innerHTML = content;
+    document.getElementById("modal").classList.remove("hidden");
+
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("loEmail").value;
+        const password = document.getElementById("loPassword").value;
+
+        fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                window.location.reload();
+            } else {
+                alert(res.error || "Login failed.");
+            }
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            fetch("/api/logout", { method: "POST" })
+            .then(() => window.location.reload());
+        });
+    }
+});
+</script>
+<script src="/static/app.js" defer></script></body></html>
