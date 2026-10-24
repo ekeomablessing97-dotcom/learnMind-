@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnMind - Lesson Workspace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --accent: #06b6d4;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 4rem; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-container img { width: 40px; height: 40px; object-fit: contain; }
+        .logo-container h1 { font-size: 1.5rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .container { max-width: 900px; margin: 3rem auto; padding: 0 2rem; }
+        .lesson-card { background: var(--card-bg); border-radius: 16px; padding: 2.5rem; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .lesson-card h2 { font-size: 2rem; margin-bottom: 1rem; color: var(--text); }
+        .meta { color: var(--accent); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; margin-bottom: 1.5rem; display: block; }
+        .content { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+        .btn { display: inline-block; background: var(--primary); color: white; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; font-weight: bold; transition: background 0.3s; }
+        .btn:hover { background: var(--primary-dark); }
+        .back-link { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; }
+        .back-link:hover { color: var(--text); }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="LearnMind Logo">
+            <h1>LearnMind</h1>
+        </a>
+    </header>
+
+    <div class="container">
+        <div class="lesson-card">
+            <span class="meta"><i class="fas fa-graduation-cap"></i> Module Session</span>
+            <h2>{{ title }}</h2>
+            <div class="content">
+                <p>{{ content }}</p>
+            </div>
+            <a href="/" class="btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+        <a href="/" class="back-link">&larr; Return to Home</a>
+    </div>
+</body>
+</html>
